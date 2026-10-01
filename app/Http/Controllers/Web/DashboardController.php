@@ -12,6 +12,14 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('dashboard.index');
+        $eventsProcessed = \App\Models\MatchEvent::count();
+        $pendingApproval = \App\Models\MediaClip::where('status', 'pending')->count();
+        $published = \App\Models\MediaClip::where('status', 'published')->orWhere('status', 'approved')->count();
+        $recentClips = \App\Models\MediaClip::with(['matchEvent.cricketMatch', 'matchEvent.player'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        return view('dashboard.index', compact('eventsProcessed', 'pendingApproval', 'published', 'recentClips'));
     }
 }

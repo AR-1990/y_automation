@@ -18,7 +18,7 @@
         </div>
         <div>
             <p class="text-[13px] font-bold text-slate-500 uppercase tracking-wide">Events Processed</p>
-            <h3 class="text-3xl font-extrabold text-slate-900 mt-1">1,248</h3>
+            <h3 class="text-3xl font-extrabold text-slate-900 mt-1">{{ number_format($eventsProcessed) }}</h3>
         </div>
     </div>
     
@@ -29,7 +29,7 @@
         </div>
         <div>
             <p class="text-[13px] font-bold text-slate-500 uppercase tracking-wide">Pending Approval</p>
-            <h3 class="text-3xl font-extrabold text-slate-900 mt-1">14</h3>
+            <h3 class="text-3xl font-extrabold text-slate-900 mt-1">{{ number_format($pendingApproval) }}</h3>
         </div>
     </div>
 
@@ -40,7 +40,7 @@
         </div>
         <div>
             <p class="text-[13px] font-bold text-slate-500 uppercase tracking-wide">Published to Social</p>
-            <h3 class="text-3xl font-extrabold text-slate-900 mt-1">432</h3>
+            <h3 class="text-3xl font-extrabold text-slate-900 mt-1">{{ number_format($published) }}</h3>
         </div>
     </div>
 </div>
@@ -49,56 +49,39 @@
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in-down" style="animation-delay: 0.4s;">
     <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
         <h3 class="font-bold text-slate-900">Recent AI Clips</h3>
-        <button class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors">View All</button>
+        <a href="{{ route('clips.index') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">View All</a>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-white text-slate-400 text-xs uppercase tracking-widest border-b border-slate-100">
-                    <th class="px-6 py-4 font-bold">Event</th>
-                    <th class="px-6 py-4 font-bold">Player</th>
-                    <th class="px-6 py-4 font-bold">Match Time</th>
-                    <th class="px-6 py-4 font-bold">Status</th>
-                    <th class="px-6 py-4 font-bold text-right">Action</th>
+                <tr class="bg-slate-50/50 border-b border-slate-100">
+                    <th class="py-3 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Event</th>
+                    <th class="py-3 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Match</th>
+                    <th class="py-3 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Status</th>
+                    <th class="py-3 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Time</th>
                 </tr>
             </thead>
-            <tbody class="text-sm divide-y divide-slate-100">
-                <tr class="hover:bg-slate-50/50 transition">
-                    <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center">
-                            <i class="fas fa-fire text-xs"></i>
-                        </div>
-                        SIX
+            <tbody class="text-sm">
+                @forelse($recentClips as $clip)
+                <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                    <td class="py-3 px-6 font-semibold text-slate-900">{{ $clip->matchEvent->event_type }}</td>
+                    <td class="py-3 px-6 text-slate-600 truncate max-w-[200px]">{{ $clip->matchEvent->cricketMatch->title }}</td>
+                    <td class="py-3 px-6 text-center">
+                        @if($clip->status == 'pending')
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-orange-50 text-orange-600 border border-orange-200">Pending</span>
+                        @elseif($clip->status == 'approved' || $clip->status == 'published')
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">Published</span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-600 border border-red-200">Rejected</span>
+                        @endif
                     </td>
-                    <td class="px-6 py-4 font-medium text-slate-600">Ali Khan</td>
-                    <td class="px-6 py-4 text-slate-500 font-mono text-xs">Over 8.4</td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-100 text-orange-600 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Pending Review
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <button class="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">Review</button>
-                    </td>
+                    <td class="py-3 px-6 text-right text-slate-500 text-xs">{{ $clip->created_at->diffForHumans() }}</td>
                 </tr>
-                <tr class="hover:bg-slate-50/50 transition">
-                    <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-red-100 text-red-500 flex items-center justify-center">
-                            <i class="fas fa-crosshairs text-xs"></i>
-                        </div>
-                        WICKET
-                    </td>
-                    <td class="px-6 py-4 font-medium text-slate-600">John Smith</td>
-                    <td class="px-6 py-4 text-slate-500 font-mono text-xs">Over 7.2</td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-600 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Published
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <button class="text-slate-400 hover:text-slate-600 transition-colors"><i class="fas fa-external-link-alt"></i></button>
-                    </td>
+                @empty
+                <tr>
+                    <td colspan="4" class="py-6 text-center text-slate-500">No recent clips found.</td>
                 </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

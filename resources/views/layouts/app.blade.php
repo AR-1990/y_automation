@@ -102,12 +102,12 @@
                 <span class="sidebar-text whitespace-nowrap">Dashboard</span>
             </a>
             
-            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-all text-slate-600 hover:bg-slate-50">
+            <a href="{{ route('clips.index') }}" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-all {{ request()->routeIs('clips.index') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50' }}">
                 <i class="fas fa-satellite-dish menu-icon w-5 text-center"></i>
-                <span class="sidebar-text whitespace-nowrap">Live Events</span>
+                <span class="sidebar-text whitespace-nowrap">Live Events (Pending)</span>
             </a>
             
-            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-all text-slate-600 hover:bg-slate-50">
+            <a href="{{ route('clips.library') }}" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-all {{ request()->routeIs('clips.library') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50' }}">
                 <i class="fas fa-video menu-icon w-5 text-center"></i>
                 <span class="sidebar-text whitespace-nowrap">Highlight Library</span>
             </a>

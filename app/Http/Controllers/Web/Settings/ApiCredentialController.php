@@ -57,7 +57,7 @@ class ApiCredentialController extends Controller
      */
     public function edit(ApiCredential $api)
     {
-        return view('settings.apis.edit', compact('api'));
+        return view('settings.apis.edit', ['apiCredential' => $api]);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CricketMatch;
 use App\Models\MatchEvent;
 use App\Models\Player;
+use App\Jobs\ProcessVideoClipJob;
 use Illuminate\Support\Facades\Log;
 
 class WebhookService
@@ -42,11 +43,11 @@ class WebhookService
             'event_type' => $payload['event_type'],
             'match_time' => $payload['match_time'] ?? null,
             'score_snapshot' => $payload['score_snapshot'] ?? null,
-            'event_timestamp' => now(), // In real scenario, use payload timestamp
+            'event_timestamp' => now(),
         ]);
 
-        // 4. Here we would dispatch the FFmpeg job
-        // Dispatch(new ExtractVideoClipJob($event));
+        // 4. Dispatch the FFmpeg/Processing job to background
+        ProcessVideoClipJob::dispatch($event);
         
         return $event;
     }

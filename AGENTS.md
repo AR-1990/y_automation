@@ -199,3 +199,16 @@ $data = $this->BuildBaseQuery($request)
 * The default sorting column should come directly from `$headers->column(2)->name`.
 * The default sorting direction should be `desc`.
 * Avoid adding unnecessary validation or variables unless they are actually required.
+
+## 10. Frontend / UI Constraints
+- ALL User Interfaces (UI) and views MUST be built using Laravel Blade templates (`.blade.php`).
+- Do NOT use frontend frameworks like React, Vue, or Inertia unless explicitly requested.
+- Keep the design professional, modern, and clean (SaaS-like structure, proper layout, "tameez ka" admin panel).
+- Include Tailwind CSS for rapid and responsive styling.
+
+## 11. Service Pattern & Controllers
+- Controllers MUST be extremely thin.
+- Controllers should ONLY handle HTTP request validation and return responses (views/JSON).
+- ALL business logic, data processing, model interactions (e.g., `User::create()`), and database operations MUST be written inside Service classes (e.g., `UserService`, `AuthService`).
+- Controllers should inject and call the relevant Service methods. Never write logical code directly in the Controller.
+- ALWAYS follow the rules defined in this AGENTS.md file strictly for every feature or modification.

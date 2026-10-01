@@ -1,0 +1,74 @@
+======================================================
+AI SPORTS MEDIA TEAM - IMPLEMENTATION PLAN
+======================================================
+
+1. OBJECTIVE & TECH STACK
+------------------------------------------------------
+Ek automated system jo CricClubs ke live score ko monitor kare, YouTube live stream se important moments (Wickets, 4s, 6s, Milestones) extract kare, FFmpeg ke zariye edit (crop 9:16, add overlays, branding) kare, aur Admin dashboard mein approval ke liye bheje taake social media (FB/IG) par post ho sake.
+
+* Backend: Laravel 11
+* Database: MySQL / PostgreSQL
+* Video Processing: FFmpeg (trim, crop, overlays)
+* Stream Fetcher: yt-dlp / streamlink
+* Queue System: Redis + Laravel Horizon (Background jobs)
+
+2. PHASES (As per Requirement.md)
+------------------------------------------------------
+PHASE 1 (MVP - Current Focus):
+* CricClubs webhook -> YouTube sync -> W/4/6 detection -> Auto clipping -> Branded Reel (9:16) -> Human approval -> IG/FB.
+* Automatic post-match highlight compilation (3-6 mins video).
+* YouTube live stream permission confirmation / CricClubs official API confirmation.
+
+PHASE 2 (Future Scope):
+* AI Importance Scoring (Normal vs High Priority).
+* Player Highlight Libraries (e.g., Ali Khan all wickets).
+* Automated Captions & Hashtags (AI integration).
+* Best catches detection & Tournament-wide highlights.
+* Fully Automatic Publishing (Bypassing human approval).
+* Commentary/audio intelligence.
+* More sophisticated AI editing.
+
+3. DATABASE ARCHITECTURE (CORE TABLES)
+------------------------------------------------------
+* matches: id, title, youtube_stream_url, status
+* players: id, name, team_id
+* match_events: id, match_id, player_id, event_type (SIX, FOUR, WICKET, MILESTONE_50, MILESTONE_100, BOWLING_MILESTONE_3W_4W_5W, PARTNERSHIP, INNINGS_BREAK, WINNING_RUNS), timestamp
+* media_clips: id, match_event_id, file_path, priority_score (For Phase 2), caption, hashtags, status (pending, approved, rejected, published)
+
+4. AUTOMATION WORKFLOW (PHASE 1)
+------------------------------------------------------
+1. Trigger: CricClubs event API par hit hoga (Wickets, Fours, Sixes, 50s/100s, 3W/4W/5W bowling, Important partnerships, Innings ending, Winning runs).
+2. Background Job: Laravel Queue job start hogi jo YouTube stream ka window (event time + buffer) fetch karegi.
+3. AI/Video Editor: FFmpeg video extract karega: (Bowler run-up → delivery → shot/wicket → reaction/celebration → replay if available).
+   - Convert to 9:16 (Reels format).
+   - Overlays: Tournament/Team Branding, Player Name, Current Score, Event Info (e.g., 73/3 | 7.4 overs).
+4. Storage & DB: Processed video local storage/S3 par save hogi aur DB mein entry ban jayegi with auto-generated caption/hashtags.
+5. Approval: Admin dashboard par clip (Preview -> Approve -> Edit -> Reject) ke liye show hoga (Within 1-2 mins of event).
+6. Publish: Approve hone par IG/FB par post.
+7. Post-Match: Match end hone ke baad, 'Match Highlight Agent' sab events ko merge kar k 3-6 minute ki video banayega (Within 5-15 mins of match end).
+   - Highlight Reel Flow: Intro → boundaries → wickets → milestones → turning points → final overs → winning moment → celebration.
+
+5. OPEN APIS & AUTHENTICATION (Laravel Sanctum)
+------------------------------------------------------
+[ Webhook / Data Ingestion APIs ] -> Auth: Secure Secret Key / Bearer Token
+* POST /api/v1/webhook/cricclubs 
+  (CricClubs live data receive karne ke liye. Official API/Webhook prefer karenge).
+
+[ Admin Approval & Clip Management APIs ] -> Auth: Sanctum Token (Admin)
+* GET /api/v1/admin/clips (Pending clips fetch karne ke liye)
+* GET /api/v1/admin/clips/{id} (Preview video)
+* POST /api/v1/admin/clips/{id}/approve (Approve & send to Social Media)
+* POST /api/v1/admin/clips/{id}/reject (Reject clip)
+* PUT /api/v1/admin/clips/{id}/edit (Caption/Hashtags edit karne ke liye)
+
+[ Highlight Generation APIs ] -> Auth: Sanctum Token (Admin)
+* POST /api/v1/admin/highlights/generate (Match khatam hone par full highlight reel merge karne ke liye)
+
+6. NEXT STEPS FOR MVP (Phase 1)
+------------------------------------------------------
+Step 1: Confirm CricClubs official API availability & YouTube stream permissions (Requirement Check).
+Step 2: Database schemas (Migrations & Models) setup karna.
+Step 3: Laravel Sanctum auth aur Admin routes/controllers setup.
+Step 4: CricClubs webhook dummy endpoint & Queue Jobs setup.
+Step 5: FFmpeg integration for video trimming, cropping & overlays (POC).
+Step 6: Admin UI (Preview -> Approve -> Edit -> Reject) dashboard banana.
